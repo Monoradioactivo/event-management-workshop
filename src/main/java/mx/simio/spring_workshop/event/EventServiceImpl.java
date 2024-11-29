@@ -56,7 +56,13 @@ public class EventServiceImpl implements EventService {
   @Override
   public Page<EventDTO> searchEvents(String keyword, String category, LocalDate startDate,
       LocalDate endDate, Pageable pageable) {
-    Page<Event> events = eventRepository.searchEvents(keyword, category, startDate, endDate,
+    EventCategory eventCategory = null;
+
+    if (category != null && !category.trim().isEmpty()) {
+      eventCategory = EventMapper.getCategory(category);
+    }
+
+    Page<Event> events = eventRepository.searchEvents(keyword, eventCategory, startDate, endDate,
         pageable);
     return events.map(EventMapper::mapToDTO);
   }
@@ -64,7 +70,8 @@ public class EventServiceImpl implements EventService {
   @Override
   public List<ParticipantDTO> getRankingByEventId(UUID eventId) {
     Event event = eventRepository.findById(eventId)
-        .orElseThrow(() -> new ResourceNotFoundException("Event with ID " + eventId + " not found"));
+        .orElseThrow(
+            () -> new ResourceNotFoundException("Event with ID " + eventId + " not found"));
 
     return event.getParticipants().stream()
         .sorted((p1, p2) -> Integer.compare(p2.getScore(), p1.getScore()))

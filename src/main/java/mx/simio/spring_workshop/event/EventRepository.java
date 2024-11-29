@@ -13,16 +13,16 @@ import org.springframework.stereotype.Repository;
 public interface EventRepository extends JpaRepository<Event, UUID> {
 
   @Query("""
-          SELECT e FROM Event e 
-          WHERE (:keyword IS NULL OR LOWER(e.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
-            AND (:category IS NULL OR e.category = :category)
-            AND (:startDate IS NULL OR e.date >= :startDate)
-            AND (:endDate IS NULL OR e.date <= :endDate)
-            AND e.isActive = true
+        SELECT e FROM Event e 
+        WHERE (:keyword IS NULL OR :keyword = '' OR LOWER(e.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
+          AND (:category IS NULL OR e.category = :category)
+          AND (:startDate IS NULL OR e.date >= :startDate)
+          AND (:endDate IS NULL OR e.date <= :endDate)
+          AND e.isActive = true
       """)
   Page<Event> searchEvents(
       @Param("keyword") String keyword,
-      @Param("category") String category,
+      @Param("category") EventCategory category,
       @Param("startDate") LocalDate startDate,
       @Param("endDate") LocalDate endDate,
       Pageable pageable
